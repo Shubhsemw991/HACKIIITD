@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  INDIVIDUAL
+  ENTERPRISE
+}
+
+model User {
+  id        String       @id @default(cuid())
+  email     String       @unique
+  name      String?
+  role      Role         @default(INDIVIDUAL)
+  createdAt DateTime     @default(now())
+  assets    AssetAudit[]
+}
+
+model AssetAudit {
+  id               String   @id @default(cuid())
+  userId           String
+  deviceType       String
+  specsDescription String
+  estimatedValue   Float
+  recyclingScore   Int
+  status           String   @default("PENDING")
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id])
+}
+
+model RecyclerNode {
+  id                String   @id @default(cuid())
+  name              String
+  locationLat       Float
+  locationLng       Float
+  verifiedLicense   Boolean  @default(false)
+  acceptedMaterials Json
+  livePayoutRate    Float
+}
